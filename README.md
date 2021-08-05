@@ -524,7 +524,7 @@ function codeGenerator(node) {
 
 这个编译器的原版是The super tiny compiler，地址：[https://github.com/jamiebuilds/the-super-tiny-compiler](https://github.com/jamiebuilds/the-super-tiny-compiler)。
 
-墙裂推荐阅读源码，第一次看到这么保姆级的代码注释，代码本身也思路清晰通俗易懂，全部代码也就两百多行，真正的深入浅出，膜拜大佬~
+墙裂推荐阅读源码，第一次看到这么保姆级的代码注释，代码本身也思路清晰通俗易懂，去掉注释全部代码也就两百多行，真正的深入浅出，膜拜大佬~
 
 我的复刻简化版本在这里：[https://github.com/youzouzou/my-tiny-compiler](https://github.com/youzouzou/my-tiny-compiler)。
 
