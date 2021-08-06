@@ -19,7 +19,7 @@
     - 2.1.1 词法分析
     - 2.1.2 句法分析
   - 2.2 转换(Transformation)
-  - 2.3. 目标代码生成(Code Generation)
+  - 2.3 目标代码生成(Code Generation)
 3. The super tiny compiler
 
 ---
@@ -225,15 +225,14 @@ const tokens = [
 ![](./assets/1.jpg)
 
 
-解析方法：
+思路：
 
 - 用JSON对象来表示树；
 - 树中的每一个节点都是一个对象；
-- 树的根节点对象定义两个属性：类型type，值为Program；树体body，值为一个数组，里面是程序中一句句代码所对应的对象；
+- 树的根节点也就是程序体，类型定位为Program；属性body保存程序中的一句句代码；
+- 遍历词法单元数组tokens，如果是name或者number类型，直接生成树的子节点（一个包含上述属性的对象）；如果是括号，则需要对括号之间的内容进行`递归`调用解析函数，对应生成一棵子树；
 - tokens中，name类型的词法单元，转换成对象后有三个属性：type、name、params。其中，type的值定义为CallExpression，表示这是一个函数表达式；name的值就是对应词法单元的value，表示具体的函数名称，比如`add`；params是一个数组，里面是函数的具体参数对象（可能是数字，也可能是另一个函数表达式）。
 - tokens中，number类型的词法单元，转换成对象后有两个属性：type和value。type定义为NumberLiteral，value是对应词法单元的value；
-- 遍历词法单元数组tokens，如果是name或者number类型，直接生成树的子节点（一个包含上述属性的对象）；如果是括号，则需要对括号之间的内容进行**递归**调用解析函数，对应生成一棵子树。
-
 
 代码实现：
 ```js
@@ -354,9 +353,9 @@ add(2, subtract(4, 2));
 |paren|)|
 |paren|;|
 
-注意到C比Lisp多了两种分隔符：`,`和 `;`。
+注意到C比Lisp多了两种分隔符：`,`和 `;`。后面生成代码的时候，我们需要把这两种分隔符加上，因此AST的设计需要考虑是否便于转换。
 
-句法分析生成AST：
+新的AST设计如下：
 ```js
 newAST = {
   type: 'Program',
@@ -398,9 +397,12 @@ newAST = {
 - params变为arguments；
 - 其余保持不变。
 
-#### 代码实现思路
+#### 思路
 
-对于body中的节点进行递归深度遍历，当type为CallExpression的name属性的加一层对象，变为calle；params中的参数如果是嵌套表达式，则递归生成子树。
+了解了抽象语法树的变化后，接下来就是将Lisp语言的AST转换成C语言的AST。
+
+先处理单个句子，根据不同的类型，作对应的处理：
+
 ```js
 switch (node.type) {
       case 'CallExpression':
@@ -452,7 +454,7 @@ function traverseNode(node, newNode) {
   }
 ```
 
-最后对ast的body进行遍历：
+再对body进行遍历，对每句代码进行转换：
 ```js
   let newAst = {
     type: 'Program',
@@ -472,8 +474,7 @@ ast.body.forEach(node => {
 newAst就是转换后的抽象语法树。
 
 
-注释：很多编译器在这一步会用到**访问者模式(Visitor Pattern)**，我们的编译器这里只是简单地实现了功能，没有采用设计模式，这里就不展开了(实际上是因为太难还没搞明白 :)
-
+注释：很多编译器在这一步会用到**访问者模式(Visitor Pattern)**便于对AST进行各种操作。我们的编译器功能比较简单，这里的实现就没有采用设计模式。
 
 ### 2.3. 目标代码生成(Code Generation)
 
@@ -524,9 +525,9 @@ function codeGenerator(node) {
 
 这个编译器的原版是The super tiny compiler，地址：[https://github.com/jamiebuilds/the-super-tiny-compiler](https://github.com/jamiebuilds/the-super-tiny-compiler)。
 
-墙裂推荐阅读源码，第一次看到这么保姆级的代码注释，代码本身也思路清晰通俗易懂，去掉注释全部代码也就两百多行，真正的深入浅出，膜拜大佬~
+墙裂推荐阅读源码，第一次看到这么保姆级的代码注释，代码本身也是思路清晰通俗易懂，去掉注释全部代码不过两百多行，真正的深入浅出，膜拜大佬~
 
-我的复刻简化版本在这里：[https://github.com/youzouzou/my-tiny-compiler](https://github.com/youzouzou/my-tiny-compiler)。
+本文完整代码在这里：[https://github.com/youzouzou/my-tiny-compiler](https://github.com/youzouzou/my-tiny-compiler)。
 
 欢迎探讨学习。
 
