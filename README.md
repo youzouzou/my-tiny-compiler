@@ -520,6 +520,9 @@ function codeGenerator(node) {
 |(subtract 4 2)|subtract(4, 2)|
 |(add 2 (subtract 4 2))|add(2, subtract(4, 2))|
 
+总结一下：
+![](./assets/4.jpeg)
+
 
 ## 3. The super tiny compiler
 
